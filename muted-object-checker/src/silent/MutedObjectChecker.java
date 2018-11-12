@@ -51,14 +51,12 @@ public class MutedObjectChecker {
 	private JSpinner spinnerMutedSet;
 	private JLabel lblMutedSampleset;
 	private JSpinner spinnerMutedType;
-	private JCheckBox chckbxIgnoreMinorUnsnaps;
 
 	private int mutedVolume = 5;
 	private int mutedSet = 0;
 	int mutedTypeInt = 2;
 	private String mappath;
 	private SimpleDateFormat sdf = new SimpleDateFormat("mm:ss:SSS");
-	private boolean ignoreUN = false;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -120,6 +118,7 @@ public class MutedObjectChecker {
 		springLayout.putConstraint(SpringLayout.NORTH, scrollOutput, 6, SpringLayout.SOUTH, txtDropFile);
 		springLayout.putConstraint(SpringLayout.WEST, scrollOutput, 10, SpringLayout.WEST,
 				frmSilentHitsoundChecker.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, scrollOutput, -6, SpringLayout.NORTH, spinnerVolume);
 		springLayout.putConstraint(SpringLayout.EAST, scrollOutput, -10, SpringLayout.EAST,
 				frmSilentHitsoundChecker.getContentPane());
 
@@ -155,13 +154,6 @@ public class MutedObjectChecker {
 				frmSilentHitsoundChecker.getContentPane());
 		spinnerMutedType.setModel(new SpinnerListModel(new String[] { "S", "N", "D" }));
 		frmSilentHitsoundChecker.getContentPane().add(spinnerMutedType);
-
-		chckbxIgnoreMinorUnsnaps = new JCheckBox("Ignore minor unsnaps");
-		springLayout.putConstraint(SpringLayout.SOUTH, scrollOutput, -2, SpringLayout.NORTH, chckbxIgnoreMinorUnsnaps);
-		springLayout.putConstraint(SpringLayout.SOUTH, chckbxIgnoreMinorUnsnaps, -6, SpringLayout.NORTH, btnCheck);
-		springLayout.putConstraint(SpringLayout.EAST, chckbxIgnoreMinorUnsnaps, 0, SpringLayout.EAST, txtDropFile);
-		chckbxIgnoreMinorUnsnaps.setToolTipText("ignores objects that appear muted due to minor unsnaps");
-		frmSilentHitsoundChecker.getContentPane().add(chckbxIgnoreMinorUnsnaps);
 	}
 
 	private void check() {
@@ -215,7 +207,7 @@ public class MutedObjectChecker {
 						svMult = (-100) / (Double.parseDouble(line.split(",")[1]));
 					}
 
-					if (ignoreUN) {
+					if (true) {
 						timingPointList.add(new TimingPoint(timingOffset - 4, volume, svMult, currentBeat));
 						timingPointList.add(new TimingPoint(timingOffset - 3, volume, svMult, currentBeat));
 						timingPointList.add(new TimingPoint(timingOffset - 2, volume, svMult, currentBeat));
@@ -227,10 +219,13 @@ public class MutedObjectChecker {
 
 				if (sectionCount == 10) {
 					if (!line.contains("|")) {
+						if (line.split(",").length > 6)
+							continue;
+						
 						if (Integer.parseInt(line.split(":")[3]) != 0) {
 							if (Integer.parseInt(line.split(":")[3]) < 6) {
 								int circleOffset = Integer.parseInt(line.split(",")[2]);
-								String formatted = sdf.format(new Date(circleOffset));
+								String formatted = sdf.format(new Date(circleOffset)) + " -";
 								outputPane.append("Silent circle at " + formatted + "\n");
 							}
 						} else {
@@ -249,9 +244,7 @@ public class MutedObjectChecker {
 							}
 						}
 						
-						int sliderDuration = (int) ((Double.parseDouble(line.split(",")[7]) / (100 * sliderMultiplier * timingPointList.get(currentArrayIndex).sv )) * timingPointList.get(currentArrayIndex).beat);
-						
-						System.out.println(sliderDuration);
+						int sliderDuration = (int) ((Double.parseDouble(line.split(",")[7]) / (100 * sliderMultiplier * timingPointList.get(currentArrayIndex).sv )) * timingPointList.get(currentArrayIndex).beat) + 1;
 						
 						for (int i = 0; i < Integer.parseInt(line.split(",")[6]); i++) {
 							sliderOffsetList.add(sliderOffset + sliderDuration*i);
@@ -305,18 +298,18 @@ public class MutedObjectChecker {
 
 			}
 			for (int circleOffset : silentCircleList) {
-				String formatted = sdf.format(new Date(circleOffset));
+				String formatted = sdf.format(new Date(circleOffset))  + " -";
 				outputPane.append("Silent circle at " + formatted + "\n");
 			}
 			for (int sliderOffset : silentSliderList) {
-				String formatted = sdf.format(new Date(sliderOffset));
+				String formatted = sdf.format(new Date(sliderOffset))  + " -";
 				outputPane.append("Silent slider at " + formatted + "\n");
 			}
 
 			if (silentCircleList.size() == 0 && silentSliderList.size() == 0) {
 				outputPane.append("No Silent Circles found");
 			}
-
+ 
 		} catch (FileNotFoundException ex1) {
 
 			outputPane.append("Error with file/calculation" + "\n");
@@ -380,13 +373,5 @@ public class MutedObjectChecker {
 			}
 		});
 
-		chckbxIgnoreMinorUnsnaps.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox checkBox = (JCheckBox) e.getSource();
-				ignoreUN = checkBox.isSelected();
-
-			}
-
-		});
 	}
 }

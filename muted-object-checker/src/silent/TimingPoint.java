@@ -12,6 +12,7 @@ public class TimingPoint {
         this.sv = sv;
         this.beat = beat;
         ending = -1;
+    
     }
     
     
