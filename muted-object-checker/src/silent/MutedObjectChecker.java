@@ -207,19 +207,19 @@ public class MutedObjectChecker {
 						svMult = (-100) / (Double.parseDouble(line.split(",")[1]));
 					}
 
-					if (true) {
-						timingPointList.add(new TimingPoint(timingOffset - 4, volume, svMult, currentBeat));
-						timingPointList.add(new TimingPoint(timingOffset - 3, volume, svMult, currentBeat));
-						timingPointList.add(new TimingPoint(timingOffset - 2, volume, svMult, currentBeat));
-						timingPointList.add(new TimingPoint(timingOffset - 1, volume, svMult, currentBeat));
-					}
+					
+					timingPointList.add(new TimingPoint(timingOffset - 4, volume, svMult, currentBeat));
+					timingPointList.add(new TimingPoint(timingOffset - 3, volume, svMult, currentBeat));
+					timingPointList.add(new TimingPoint(timingOffset - 2, volume, svMult, currentBeat));
+					timingPointList.add(new TimingPoint(timingOffset - 1, volume, svMult, currentBeat));
+					
 					timingPointList.add(new TimingPoint(timingOffset, volume, svMult, currentBeat));
 
 				}
 
 				if (sectionCount == 10) {
 					if (!line.contains("|")) {
-						if (line.split(",").length > 6)
+						if (line.split(",").length > 6) //does something to ignore slider idk wtf kibb did tbh
 							continue;
 						
 						if (Integer.parseInt(line.split(":")[3]) != 0) {
@@ -237,11 +237,19 @@ public class MutedObjectChecker {
 						int sliderOffset = Integer.parseInt(line.split(",")[2]);
 
 						for (int i = currentArrayIndex; i < timingPointList.size(); i++) {
-							if (timingPointList.get(i).offset <= sliderOffset
-									&& timingPointList.get(i + 1).offset >= sliderOffset) {
-								currentArrayIndex = i;
-								break;
-							}
+							 if (i == timingPointList.size() - 1) {
+	                                if (timingPointList.get(i).offset <= sliderOffset) {
+	                                    currentArrayIndex = i;
+	                                    break;
+	                                }
+	                            }
+	                            else {
+	                                if (timingPointList.get(i).offset <= sliderOffset
+	                                        && timingPointList.get(i + 1).offset >= sliderOffset) {
+	                                    currentArrayIndex = i;
+	                                    break;
+	                                }
+	                            }
 						}
 						
 						int sliderDuration = (int) ((Double.parseDouble(line.split(",")[7]) / (100 * sliderMultiplier * timingPointList.get(currentArrayIndex).sv )) * timingPointList.get(currentArrayIndex).beat) + 1;
