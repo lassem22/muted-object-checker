@@ -8,9 +8,7 @@ Just download the "muted.jar" file and run it, if you don't feel like compiling 
 
 ## Known Issues
 
-* Spinners get detected as circles, so be aware of possible false-positives
-* Can't detect muted repeats/sliderends
-* ?
+* might still miss some things or throw some false positives since not a lot of testing has been done
 
 ## Screenshots
 ![a](https://lasse.s-ul.eu/mxZxVsQ8.png)
